@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="100" fill="url(#grad)"/>
+  <!-- Washing Machine Body -->
+  <rect x="96" y="70" width="320" height="372" rx="40" fill="#ffffff"/>
+  <!-- Top Panel Area -->
+  <rect x="120" y="100" width="272" height="48" rx="12" fill="#e2e8f0"/>
+  <circle cx="150" cy="124" r="10" fill="#2563eb"/>
+  <circle cx="180" cy="124" r="6" fill="#94a3b8"/>
+  <circle cx="205" cy="124" r="6" fill="#94a3b8"/>
+  <rect x="300" y="112" width="70" height="24" rx="6" fill="#1e293b"/>
+  <!-- Drum Outer Ring -->
+  <circle cx="256" cy="275" r="120" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="12"/>
+  <!-- Drum Door Glass -->
+  <circle cx="256" cy="275" r="95" fill="#38bdf8" opacity="0.3"/>
+  <circle cx="256" cy="275" r="75" fill="#0284c7" opacity="0.5"/>
+  <!-- Bubbles/Water -->
+  <circle cx="230" cy="285" r="18" fill="#ffffff" opacity="0.8"/>
+  <circle cx="280" cy="265" r="12" fill="#ffffff" opacity="0.7"/>
+  <circle cx="260" cy="315" r="14" fill="#ffffff" opacity="0.75"/>
+</svg>

@@ -1,0 +1,17 @@
+{
+  "name": "Japan Laundry Care Assistant",
+  "short_name": "Laundry Care",
+  "description": "Bilingual laundry guide, dosage calculator, and error code solver for Japanese apartment washing machines",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

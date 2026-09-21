@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Japan Laundry Care Assistant</title>
+  <meta name="description" content="Bilingual English/Japanese interactive laundry guide, dosage calculator, and error code lookup for apartment drum washing machines.">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand-title">
+        <span class="badge-flag">🧺</span>
+        <span id="header-app-title">Laundry Care Japan</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn-pill-toggle" id="btn-toggle-lang" aria-label="Toggle Language" title="Switch Language (日本語 / English)">
+          <span id="lang-toggle-text">🌐 日本語</span>
+        </button>
+        <button class="btn-icon" id="btn-toggle-theme" aria-label="Toggle Dark Mode" title="Toggle Dark/Light Mode">
+          <span id="theme-toggle-icon">🌙</span>
+        </button>
+        <button class="btn-icon" id="btn-open-settings" aria-label="Settings & Products" title="Products & Settings">
+          ⚙️
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Machine Selector Ribbon (2-Step Progressive: Floor ➔ Model) -->
+  <section class="machine-selector-bar">
+    <div class="selector-label">
+      <span id="lbl-select-floor">1. Select Floor</span>
+      <span class="selector-sub" id="lbl-select-machine">2. Select Washer</span>
+    </div>
+    <div class="floor-selector-row" id="floor-selector-row">
+      <!-- 3 Floor buttons: 2F, 3F (Women Only), 4F -->
+    </div>
+    <div class="machine-model-grid" id="machine-pill-list">
+      <!-- Models available on the active floor -->
+    </div>
+  </section>
+
+  <!-- Main Container -->
+  <main class="app-content">
+
+    <!-- Active Machine Banner -->
+    <div class="machine-banner">
+      <div class="machine-banner-info" id="machine-banner-info">
+        <!-- Generated dynamically -->
+      </div>
+    </div>
+
+    <!-- ================= TAB 1: DOSAGE GUIDE (DEFAULT & CONSOLIDATED) ================= -->
+    <section id="tab-view-dosage">
+      <div class="section-header">
+        <div class="section-title">
+          <span>⚖️</span>
+          <span id="tab-dosage-title">Detergent Dosing & Pouring Guide</span>
+        </div>
+        <div class="section-desc" id="tab-dosage-desc">Tap your machine display number below for instant cap measurements.</div>
+      </div>
+
+      <!-- Collapsible How-To-Start Helper (Progressive Disclosure) -->
+      <div class="start-helper-card" id="start-helper-card">
+        <button type="button" class="btn-toggle-start-helper" id="btn-toggle-start-helper" aria-expanded="false">
+          <span class="start-helper-icon" id="start-helper-icon">▶</span>
+          <span class="start-helper-title" id="lbl-start-helper-title">Need help starting? (3 Button Sequence)</span>
+          <span class="start-helper-badge" id="lbl-start-helper-badge">Show Steps ▾</span>
+        </button>
+        <div class="start-helper-drawer hidden" id="start-helper-drawer">
+          <!-- Quick Goals Selector Chips -->
+          <div class="drawer-sub-section">
+            <div class="drawer-sub-title" id="goals-title">What are you washing?</div>
+            <div class="goals-grid" id="goals-grid">
+              <!-- Populated dynamically: Normal, Towels, Delicates, Blanket, Quick, Tub Clean -->
+            </div>
+          </div>
+
+          <!-- Step 1: Pre-Drum Reminder (Pods & Beads) -->
+          <div class="pre-drum-quick-tip hidden" id="pre-drum-box">
+            <span class="tip-icon">💎</span>
+            <div class="tip-body">
+              <span id="pre-drum-text">Toss beads/pods directly into empty drum bottom before loading clothes!</span>
+              <div id="pre-drum-estimate" class="tip-estimate"></div>
+            </div>
+          </div>
+
+          <!-- Step 2: Physical Panel Buttons to Press -->
+          <div class="drawer-sub-section" id="steps-box">
+            <div class="drawer-sub-title" id="steps-box-title">Press these buttons in order:</div>
+            <div class="step-items-list" id="step-items-list">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. The Hero: What number is on the screen? -->
+      <div class="load-weigh-card" id="dosage-box">
+        <div class="load-weigh-header">
+          <div class="load-weigh-title">
+            <span>⚖️</span>
+            <span id="weighing-box-title">What number is on the screen?</span>
+          </div>
+          <div class="pour-tip-chip" id="pour-tip-chip">
+            <span id="pour-tip-text">⚡ Pour before water starts</span>
+          </div>
+        </div>
+        <div class="load-weigh-desc" id="weighing-box-desc">
+          After pressing Start, the drum rotates dry to weigh clothes, then displays a cup fraction. Tap your number:
+        </div>
+        <div class="load-buttons-row" id="load-buttons-row">
+          <!-- Populated dynamically -->
+        </div>
+        <div class="load-summary-row">
+          <span class="load-summary-info"><strong>Medium load: ~0.5 to 2.5 kg</strong> (Estimated Water: ~25L)</span>
+          <span class="instant-cap-label" id="instant-cap-label">⚡ Instant Cap Calc</span>
+        </div>
+      </div>
+
+      <!-- 2. Instant Pouring Recipe Cards -->
+      <div class="dosage-results-header">
+        <div class="section-title">
+          <span>🧴</span>
+          <span id="dosage-results-title">Pour This</span>
+        </div>
+        <button type="button" class="btn-routine-pill" id="btn-open-basket-modal">
+          🧺 <span id="lbl-btn-open-basket">My Bottles / Manage Arsenal</span>
+        </button>
+      </div>
+
+      <!-- Zero-state card shown when user has no detergent configured -->
+      <div class="zero-state-arsenal hidden" id="zero-state-arsenal">
+        <div class="zero-state-icon">🧺</div>
+        <div class="zero-state-title" id="lbl-zero-title">Welcome! Add your laundry bottle to get started</div>
+        <div class="zero-state-desc" id="lbl-zero-desc">
+          Every Japanese detergent bottle has a simple standard ratio on the back (e.g. 10 mL or 25 mL per 30L). Add your bottle once in 15 seconds, and get instant exact measurements for every wash!
+        </div>
+        <div class="zero-actions-row">
+          <button type="button" class="btn-zero-scan" id="btn-zero-scan-bottle">
+            <span class="btn-scan-icon">📸</span>
+            <span id="lbl-zero-scan-btn">Scan Barcode / Label</span>
+          </button>
+          <button type="button" class="btn-zero-add" id="btn-zero-add-bottle">
+            <span class="btn-plus">＋</span>
+            <span id="lbl-zero-btn">Manual Entry (15s)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="product-cards-list" id="product-cards-list">
+        <!-- Populated dynamically -->
+      </div>
+
+      <!-- 3. Dispenser Drawer Map (Collapsible on Demand) -->
+      <div class="drawer-visual-section" id="drawer-box">
+        <div class="drawer-toggle-header" id="btn-toggle-drawer">
+          <div class="section-title">
+            <span>📥</span>
+            <span id="drawer-box-title">Dispenser Drawer Map</span>
+          </div>
+          <span class="drawer-toggle-pill" id="lbl-toggle-drawer">Tap to View Compartments ▾</span>
+        </div>
+        <div class="drawer-collapsible-body hidden" id="drawer-collapsible-body">
+          <div class="drawer-svg-container" id="drawer-svg-container">
+            <!-- Generated SVG dynamically -->
+          </div>
+          <div class="drawer-legend">
+            <div class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span> <span id="leg-detergent">Liquid Detergent</span></div>
+            <div class="legend-item"><span class="legend-dot" style="background:#ec4899;"></span> <span id="leg-softener">Softener / Citric Acid</span></div>
+            <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> <span id="leg-bleach">Liquid Bleach</span></div>
+            <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> <span id="leg-powder">Powder Detergent</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 2: INTERACTIVE CONTROL PANEL & DICTIONARY ================= -->
+    <section id="tab-view-panel" class="hidden">
+      <div class="section-header">
+        <div class="section-title">
+          <span>🎛️</span>
+          <span id="tab-panel-title">Interactive Control Panel Map</span>
+        </div>
+        <div class="section-desc" id="tab-panel-desc">Tap any button or indicator on the virtual panel below to inspect its Japanese meaning and function.</div>
+      </div>
+
+      <!-- Active Machine Banner for Panel View -->
+      <div class="panel-machine-banner" id="panel-machine-banner">
+        <div class="panel-machine-info">
+          <span class="panel-machine-title" id="panel-machine-name">Panasonic NA-LX113BL</span>
+          <span class="tag-badge" id="panel-floor-badge">2F</span>
+        </div>
+        <div class="panel-tip-pill" id="panel-touch-hint">👉 Tap buttons below to inspect</div>
+      </div>
+
+      <!-- Smart-Fit Portrait Console (Ergonomic Appliance Layout) -->
+      <div class="panel-mode-view" id="view-container-smart">
+        <div class="smart-console-chassis" id="smart-panel-chassis">
+          <!-- Dynamically populated per machine in ergonomic appliance layout -->
+        </div>
+      </div>
+
+      <!-- Interactive Button Inspector Card -->
+      <div class="panel-inspector-card" id="panel-inspector-card">
+        <!-- Dynamically populated when user taps any button -->
+      </div>
+
+      <!-- General Japanese Laundry Glossary Section -->
+      <div class="panel-dict-section" id="tab-panel-dict">
+        <div class="section-header">
+          <div class="section-title">
+            <span>📖</span>
+            <span id="tab-dict-subheading">General Laundry Room Vocabulary</span>
+          </div>
+          <div class="section-desc" id="tab-dict-desc">Quick reference glossary for Japanese terms across laundry machines.</div>
+        </div>
+        <div class="dict-search-wrapper">
+          <span class="dict-search-icon">🔍</span>
+          <input type="text" class="dict-search-input" id="dict-search-input" placeholder="Search Japanese word or English meaning (e.g. 洗い, rinse, spin)...">
+        </div>
+        <div class="dictionary-grid" id="dictionary-grid">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 3: ERROR CODES & PROBLEM SOLVER ================= -->
+    <section id="tab-view-errors" class="hidden">
+      <div class="section-header">
+        <div class="section-title">
+          <span>⚠️</span>
+          <span id="tab-errors-title">Error Code & Problem Solver</span>
+        </div>
+        <div class="section-desc" id="tab-errors-desc">Type the error code on the screen (e.g. U11, C04, E01) or a symptom (drain, water, door):</div>
+      </div>
+
+      <!-- Error Search Input -->
+      <div class="error-search-box">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="error-search-input" placeholder="Search error code or symptom (e.g. U11, C02, drain, door)...">
+        </div>
+      </div>
+
+      <!-- Error Codes List -->
+      <div class="error-cards-list" id="error-cards-list">
+        <!-- Populated dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= BOTTLE ROUTINE & SELECTION MODAL ================= -->
+  <div class="modal-overlay hidden" id="modal-basket-setup">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-title-icon">🧺</span>
+          <div>
+            <div class="modal-title" id="basket-card-title">My Laundry Arsenal</div>
+            <div class="modal-sub" id="basket-card-sub">Check the bottles you brought for today's wash:</div>
+          </div>
+        </div>
+        <button class="btn-close" id="btn-close-basket-modal" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="arsenal-modal-body">
+        <div class="arsenal-top-actions">
+          <button type="button" class="btn-arsenal-add-new" id="btn-open-calibrator" title="Add another laundry bottle">
+            <span class="btn-plus-icon">＋</span>
+            <span id="lbl-btn-calibrate">Add New Bottle (15s)</span>
+          </button>
+        </div>
+
+        <div class="user-arsenal-list" id="user-arsenal-list">
+          <!-- Dynamically populated from user's custom bottles -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-primary" id="btn-save-basket-modal">✓ Done & Save</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= 15-SECOND IN-SITU BOTTLE CALIBRATOR MODAL ================= -->
+  <!-- ================= 15-SECOND BOTTLE ADDITION / EDIT MODAL ================= -->
+  <div class="modal-overlay hidden" id="modal-custom-bottle">
+    <div class="modal-sheet modal-sheet-wide">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-title-icon">⚡</span>
+          <div>
+            <div class="modal-title" id="modal-custom-title">15-Second Bottle Setup</div>
+            <div class="modal-sub" id="modal-custom-sub">Add any bottle or box using the numbers on the back</div>
+          </div>
+        </div>
+        <button class="btn-close" id="btn-close-custom-modal" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="custom-bottle-body">
+        <input type="hidden" id="custom-edit-bottle-id" value="">
+
+        <!-- Scanner Fast-Track Banner -->
+        <div class="scanner-fast-track-card" id="scanner-fast-track-card">
+          <div class="scanner-fast-track-left">
+            <span class="scanner-fast-track-icon">📸</span>
+            <div class="scanner-fast-track-text">
+              <strong id="lbl-fast-track-title">Instant Setup with Camera</strong>
+              <span id="lbl-fast-track-sub">Scan your bottle's barcode or label table</span>
+            </div>
+          </div>
+          <button type="button" class="btn-fast-track-scan" id="btn-open-scanner-modal">
+            <span class="btn-scan-icon">⚡</span>
+            <span id="lbl-btn-open-scanner">Scan Now</span>
+          </button>
+        </div>
+
+        <!-- Detected Bottle Banner (shown when auto-filled) -->
+        <div class="scanner-detected-pill hidden" id="scanner-detected-pill">
+          <span class="detected-pill-icon">✨</span>
+          <span id="lbl-detected-pill-text">Auto-detected from Barcode</span>
+          <button type="button" class="btn-clear-detected" id="btn-clear-detected" aria-label="Dismiss">&times;</button>
+        </div>
+
+        <!-- Visual Label Hint Card -->
+        <div class="bottle-label-guide-card">
+          <div class="guide-card-icon">🔍</div>
+          <div class="guide-card-text">
+            <div class="guide-title" id="guide-card-title">Where to look on the packaging:</div>
+            <div class="guide-highlight" id="guide-card-highlight">
+              Find <strong>「水30Lに対して ○○ mL」</strong> or <strong>「水30Lに対して ○○ g」</strong>
+            </div>
+            <div class="guide-sub" id="guide-card-sub">
+              Enter the exact amount from your bottle or box below:
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 1: Physical Form Selector (Symmetrical 2x2 Grid) -->
+        <div class="form-group" id="form-step-physical">
+          <label class="form-label" id="lbl-custom-form">1. Physical Form (What's in your hand?)</label>
+          <div class="form-grid-2x2" role="radiogroup">
+            <label class="form-card-label">
+              <input type="radio" name="bottle-form" id="form-radio-liquid" value="liquid" checked class="hidden-radio">
+              <div class="form-card selected" id="card-form-liquid">
+                <span class="form-card-icon">💧</span>
+                <span class="form-card-title" id="lbl-form-liquid">Liquid</span>
+                <span class="form-card-sub">液体ボトル</span>
+              </div>
+            </label>
+            <label class="form-card-label">
+              <input type="radio" name="bottle-form" id="form-radio-powder" value="powder" class="hidden-radio">
+              <div class="form-card" id="card-form-powder">
+                <span class="form-card-icon">📦</span>
+                <span class="form-card-title" id="lbl-form-powder">Powder</span>
+                <span class="form-card-sub">粉末・箱</span>
+              </div>
+            </label>
+            <label class="form-card-label">
+              <input type="radio" name="bottle-form" id="form-radio-pods" value="pods" class="hidden-radio">
+              <div class="form-card" id="card-form-pods">
+                <span class="form-card-icon">🍬</span>
+                <span class="form-card-title" id="lbl-form-pods">Pod / Stick</span>
+                <span class="form-card-sub">ジェルボール・スティック</span>
+              </div>
+            </label>
+            <label class="form-card-label">
+              <input type="radio" name="bottle-form" id="form-radio-beads" value="beads" class="hidden-radio">
+              <div class="form-card" id="card-form-beads">
+                <span class="form-card-icon">💎</span>
+                <span class="form-card-title" id="lbl-form-beads">Scent Beads</span>
+                <span class="form-card-sub">香り付けビーズ</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Step 2: Sub-Category Selector (Dynamic Drill-Down based on Step 1) -->
+        <div class="form-group" id="form-step-category">
+          <label class="form-label" id="lbl-custom-category">2. Product Type (Match the Japanese bottle)</label>
+          <div class="category-grid-dynamic" id="category-chips-container" role="radiogroup">
+            <!-- Dynamically rendered per physical form -->
+          </div>
+        </div>
+
+        <!-- 3. Bottle Nickname -->
+        <div class="form-group">
+          <div class="name-label-row">
+            <label for="custom-prod-name" class="form-label" id="lbl-custom-name">3. Product Name / Nickname</label>
+            <span class="optional-name-badge" id="lbl-name-optional">Optional — auto-fills if empty</span>
+          </div>
+          <input type="text" id="custom-prod-name" class="form-input" placeholder="e.g. My Everyday Detergent, Blue Bottle, Lavender Softener">
+        </div>
+
+        <!-- 4. Cap Calibration & Baseline Input & 1-Tap Quick Pills -->
+        <div class="form-group" id="custom-baseline-group">
+          <!-- Kanji Hunter Back-Label Guide -->
+          <div class="kanji-hunter-box" id="kanji-hunter-guide">
+            <div class="kanji-hunter-header">
+              <span class="kanji-hunter-icon">🔍</span>
+              <span class="kanji-hunter-title" id="lbl-kanji-hunter-title">Back-Label Kanji to Look For:</span>
+            </div>
+            <div class="kanji-target-badge" id="lbl-kanji-target-badge">水30Lに対する使用量</div>
+            <div class="kanji-hunter-tip" id="lbl-kanji-hunter-tip">Scan the back label for "水30Lに対する使用量" or the dosing table.</div>
+          </div>
+
+          <!-- Cap Marking Style Selector -->
+          <div class="cap-style-selector-group" id="custom-cap-style-group">
+            <div class="cap-style-label-row">
+              <span class="subrow-label" id="lbl-cap-style-title">Cap Physical Marking Style:</span>
+            </div>
+            <div class="cap-style-pills-row" id="custom-cap-style-pills">
+              <button type="button" class="btn-cap-style-pill active" data-style="decimal">🥛 0.4–1.0 杯</button>
+              <button type="button" class="btn-cap-style-pill" data-style="steps">🌸 目盛り1/2/3</button>
+              <button type="button" class="btn-cap-style-pill" data-style="lines">📏 下線/上線</button>
+              <button type="button" class="btn-cap-style-pill" data-style="scoop">🥄 スプーン</button>
+            </div>
+          </div>
+
+          <div class="baseline-header-row">
+            <label for="custom-prod-ml" class="form-label" id="lbl-custom-baseline">
+              4. Cap Calibration & Baseline: <strong>水30Lに対する使用量</strong>
+            </label>
+            <span class="baseline-quick-hint" id="lbl-quick-pills-hint">1-Tap Quick Fill:</span>
+          </div>
+
+          <!-- 1-Tap Quick Preset Pills Container -->
+          <div class="baseline-quick-pills-row" id="baseline-quick-pills">
+            <!-- Dynamically populated per category -->
+          </div>
+
+          <div class="baseline-input-row">
+            <input type="number" id="custom-prod-ml" class="form-input baseline-number-input" value="10" min="1" max="150" step="0.5">
+            <span class="baseline-unit-label" id="lbl-custom-unit">mL per 30L Water (水30Lに対して)</span>
+          </div>
+          <div class="baseline-guide-tip" id="lbl-custom-guide-tip">
+            💡 Look for "水30Lに対して..." on back label. Ultra-concentrates are 10mL; standard liquids are 20-25mL.
+          </div>
+
+          <!-- Physical Cap Calibration Live Preview -->
+          <div class="cap-lines-preview-card" id="custom-cap-preview">
+            <div class="cap-preview-header">
+              <span class="cap-preview-icon" id="lbl-cap-preview-icon">🥛</span>
+              <span class="cap-preview-title" id="lbl-cap-preview-title">Physical Cap Calibration:</span>
+            </div>
+            <div class="cap-lines-chips-row" id="custom-cap-lines-chips"></div>
+          </div>
+
+          <!-- 1:1 Virtual Japanese Back-Label Dosing Table Mirror -->
+          <div class="label-matrix-card" id="custom-label-matrix-card">
+            <div class="matrix-card-header">
+              <div class="matrix-card-title-group">
+                <span class="matrix-card-icon">📋</span>
+                <span class="matrix-card-title" id="lbl-matrix-title">1:1 Back-Label Table Mirror (使用量の目安)</span>
+              </div>
+              <button type="button" class="btn-matrix-tune-toggle" id="btn-toggle-matrix-tune">
+                <span id="lbl-matrix-tune-toggle">Adjust Table ▾</span>
+              </button>
+            </div>
+            
+            <div class="label-matrix-table-wrap">
+              <table class="label-matrix-table" id="label-matrix-table">
+                <thead>
+                  <tr>
+                    <th id="th-matrix-load">ドラム式 (Drum)</th>
+                    <th id="th-matrix-water">水量 (Water)</th>
+                    <th id="th-matrix-cap">キャップ目安 (Cap)</th>
+                    <th id="th-matrix-amount">実量 (Dose)</th>
+                  </tr>
+                </thead>
+                <tbody id="label-matrix-tbody">
+                  <!-- Dynamically generated 4 rows -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Collapsible Fine-Tune Inputs -->
+            <div class="matrix-tune-body hidden" id="matrix-tune-body">
+              <div class="matrix-tune-hint" id="lbl-matrix-tune-hint">
+                💡 Tweak individual load rows if your bottle's printed table differs from standard ratios.
+              </div>
+              <div class="matrix-tune-inputs-grid" id="matrix-tune-inputs-grid">
+                <!-- Dynamically generated editable fields for each load level -->
+              </div>
+              <button type="button" class="btn-reset-matrix" id="btn-reset-matrix">↺ Reset to Standard</button>
+            </div>
+          </div>
+
+          <!-- Dispenser Siphon Safety Alert -->
+          <div class="dispenser-safety-alert hidden" id="dispenser-safety-alert">
+            <span class="safety-alert-icon">⚠️</span>
+            <div class="safety-alert-text" id="lbl-dispenser-safety-text">
+              Warning: Doses exceeding 45 mL in the fabric softener tray will siphon prematurely before the rinse cycle!
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Dispenser Mechanism (Push Bottle / Pump - Liquids only) -->
+        <div class="form-group dispenser-type-group" id="custom-push-container">
+          <label class="checkbox-toggle-label">
+            <input type="checkbox" id="custom-is-push" class="toggle-checkbox">
+            <div>
+              <div class="toggle-title" id="lbl-custom-push-title">5. Push Bottle / Pump Dispenser (ワンハンドプッシュ)</div>
+              <div class="toggle-desc" id="lbl-custom-push-desc">Calculates exact push count instead of cap marks</div>
+            </div>
+          </label>
+          <div class="push-amount-subrow hidden" id="custom-push-subrow">
+            <div class="push-presets-row" id="push-quick-pills">
+              <button type="button" class="btn-preset-pill" data-push="5">5g (High Output / 大吐出)</button>
+              <button type="button" class="btn-preset-pill" data-push="3">3g (Standard / 標準)</button>
+            </div>
+            <div class="push-input-group">
+              <label for="custom-push-g" class="subrow-label" id="lbl-custom-push-g">Grams per single push (1プッシュの量):</label>
+              <input type="number" id="custom-push-g" class="form-input push-number-input" value="5" min="1" max="20" step="0.5">
+              <span class="push-unit-label">g / 回</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Compartment Preview Box -->
+        <div class="custom-slot-preview-card" id="custom-slot-preview">
+          <span class="preview-slot-icon">📍</span>
+          <div class="preview-slot-text">
+            <span class="preview-slot-label" id="lbl-preview-slot-label">Where to pour:</span>
+            <strong id="lbl-preview-slot-name">Main Liquid Detergent Tray</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-cancel" id="btn-cancel-custom-modal">Cancel</button>
+        <button type="button" class="btn-modal-primary" id="btn-save-custom-bottle">💾 Save Bottle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CAMERA BARCODE & OCR SCANNER MODAL ================= -->
+  <div class="modal-backdrop hidden" id="modal-scanner" role="dialog" aria-modal="true">
+    <div class="scanner-modal-card">
+      <div class="scanner-header">
+        <div class="scanner-header-left">
+          <span class="scanner-icon">📸</span>
+          <div>
+            <div class="scanner-modal-title" id="lbl-scanner-title">Scan Bottle / Barcode</div>
+            <div class="scanner-modal-sub" id="lbl-scanner-sub">Align barcode or dosing table in the frame</div>
+          </div>
+        </div>
+        <div class="scanner-header-actions">
+          <button type="button" class="btn-scanner-icon" id="btn-scanner-torch" title="Flashlight" aria-label="Toggle Flashlight">🔦</button>
+          <button type="button" class="btn-scanner-icon" id="btn-scanner-flip" title="Switch Camera" aria-label="Switch Camera">🔄</button>
+          <button type="button" class="btn-scanner-close" id="btn-close-scanner" aria-label="Close">&times;</button>
+        </div>
+      </div>
+
+      <div class="scanner-viewport-container" id="scanner-viewport-container">
+        <video id="scanner-video" class="scanner-video" playsinline autoplay muted></video>
+        <canvas id="scanner-canvas" class="scanner-canvas hidden"></canvas>
+
+        <!-- Viewfinder Overlay with Reticle & Laser Sweep -->
+        <div class="scanner-reticle-box" id="scanner-reticle-box">
+          <div class="reticle-corner reticle-tl"></div>
+          <div class="reticle-corner reticle-tr"></div>
+          <div class="reticle-corner reticle-bl"></div>
+          <div class="reticle-corner reticle-br"></div>
+          <div class="scanner-laser" id="scanner-laser"></div>
+          <div class="reticle-target-guide" id="lbl-reticle-target-guide">
+            <span id="lbl-reticle-text">Align Barcode or Dosing Table</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Status Notification Pill -->
+        <div class="scanner-live-status" id="scanner-live-status">
+          <span class="status-indicator-dot"></span>
+          <span id="lbl-scanner-status-text">Scanning for Barcode...</span>
+        </div>
+
+        <!-- Fallback message if camera unavailable -->
+        <div class="scanner-fallback-message hidden" id="scanner-fallback-message">
+          <span class="fallback-icon">📷</span>
+          <div id="lbl-scanner-fallback-text">Camera stream is not available on this device. Please upload a photo of your label or barcode below.</div>
+        </div>
+      </div>
+
+      <div class="scanner-footer">
+        <!-- Scan Mode Selector -->
+        <div class="scanner-mode-tabs">
+          <button type="button" class="btn-scanner-mode active" id="btn-mode-barcode" data-mode="barcode">
+            <span>🏷️</span>
+            <span id="lbl-mode-barcode">Barcode (Fast)</span>
+          </button>
+          <button type="button" class="btn-scanner-mode" id="btn-mode-ocr" data-mode="ocr">
+            <span>📄</span>
+            <span id="lbl-mode-ocr">Dosing Table OCR</span>
+          </button>
+        </div>
+
+        <!-- Action Controls in Footer -->
+        <div class="scanner-actions-bar">
+          <!-- Snap/Read Button (active in OCR mode) -->
+          <button type="button" class="btn-scanner-action-primary hidden" id="btn-scanner-snap-ocr">
+            <span>📸</span>
+            <span id="lbl-btn-snap-ocr">Snap & Read Table</span>
+          </button>
+
+          <!-- Upload Photo Button -->
+          <label class="btn-scanner-action-secondary" id="lbl-btn-upload-photo">
+            <span>📁</span>
+            <span id="lbl-scanner-upload-text">Upload Photo</span>
+            <input type="file" id="scanner-file-input" accept="image/*" class="hidden-file-input">
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Tab Bar (3 Clean Tabs: Dosage Guide [Default], Panel Map, Error Codes) -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="dosage">
+      <span class="nav-icon">⚖️</span>
+      <span id="nav-label-dosage">Dosage Guide</span>
+    </button>
+    <button class="nav-item" data-tab="panel">
+      <span class="nav-icon">🎛️</span>
+      <span id="nav-label-panel">Panel Map</span>
+    </button>
+    <button class="nav-item" data-tab="errors">
+      <span class="nav-icon">⚠️</span>
+      <span id="nav-label-errors">Error Codes</span>
+    </button>
+  </nav>
+
+  <!-- Load Data & App Script -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
