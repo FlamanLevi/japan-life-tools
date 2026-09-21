@@ -323,10 +323,16 @@
               <span id="lbl-fast-track-sub">Scan your bottle's barcode or label table</span>
             </div>
           </div>
-          <button type="button" class="btn-fast-track-scan" id="btn-open-scanner-modal">
-            <span class="btn-scan-icon">⚡</span>
-            <span id="lbl-btn-open-scanner">Scan Now</span>
-          </button>
+          <div class="fast-track-actions">
+            <button type="button" class="btn-fast-track-scan" id="btn-open-scanner-modal" title="Scan Barcode">
+              <span class="btn-scan-icon">🏷️</span>
+              <span id="lbl-btn-open-scanner">Barcode</span>
+            </button>
+            <button type="button" class="btn-fast-track-scan btn-fast-track-ocr" id="btn-open-scanner-ocr" title="Scan Dosing Table">
+              <span class="btn-scan-icon">📸</span>
+              <span id="lbl-btn-open-ocr">Dosing Table</span>
+            </button>
+          </div>
         </div>
 
         <!-- Detected Bottle Banner (shown when auto-filled) -->
@@ -446,6 +452,10 @@
           <div class="baseline-input-row">
             <input type="number" id="custom-prod-ml" class="form-input baseline-number-input" value="10" min="1" max="150" step="0.5">
             <span class="baseline-unit-label" id="lbl-custom-unit">mL per 30L Water (水30Lに対して)</span>
+            <button type="button" class="btn-builder-scan-ocr" id="btn-builder-scan-label" title="Scan back label table with camera">
+              <span>📸</span>
+              <span id="lbl-builder-scan-label">Auto-Read Table</span>
+            </button>
           </div>
           <div class="baseline-guide-tip" id="lbl-custom-guide-tip">
             💡 Look for "水30Lに対して..." on back label. Ultra-concentrates are 10mL; standard liquids are 20-25mL.
@@ -592,6 +602,27 @@
         <div class="scanner-fallback-message hidden" id="scanner-fallback-message">
           <span class="fallback-icon">📷</span>
           <div id="lbl-scanner-fallback-text">Camera stream is not available on this device. Please upload a photo of your label or barcode below.</div>
+        </div>
+
+        <!-- Unknown Barcode Fallback Prompt (Smart In-Camera Assist) -->
+        <div class="scanner-unknown-prompt hidden" id="scanner-unknown-prompt">
+          <div class="unknown-prompt-badge">
+            <span>🏷️</span>
+            <span id="lbl-unknown-prompt-title">New Barcode Detected</span>
+          </div>
+          <div class="unknown-prompt-code" id="lbl-unknown-prompt-code">4903301...</div>
+          <div class="unknown-prompt-desc" id="lbl-unknown-prompt-desc">
+            Not in our catalog yet. Flip bottle to the back dosing table (使用量の目安) to auto-read the concentration!
+          </div>
+          <div class="unknown-prompt-actions">
+            <button type="button" class="btn-prompt-action btn-prompt-ocr" id="btn-scanner-switch-to-ocr">
+              <span>📸</span>
+              <span id="lbl-btn-prompt-ocr">Scan Dosing Table</span>
+            </button>
+            <button type="button" class="btn-prompt-action btn-prompt-manual" id="btn-scanner-skip-to-manual">
+              <span id="lbl-btn-prompt-manual">Manual Setup (15s) ➔</span>
+            </button>
+          </div>
         </div>
       </div>
 

@@ -59,6 +59,8 @@ class LaundryApp {
     this.isScanning = false;
     this.detectedBottleData = null;
     this.wasBasketModalOpen = false;
+    this.pendingBarcode = null;
+    this.isBarcodeDetectingPaused = false;
 
     this.init();
   }
@@ -585,6 +587,28 @@ class LaundryApp {
         : "Camera stream is not available on this device. Please upload a photo of your label or barcode below.";
     }
 
+    const lblUnknownPromptTitle = document.getElementById("lbl-unknown-prompt-title");
+    if (lblUnknownPromptTitle) lblUnknownPromptTitle.textContent = isJa ? "新しいバーコード検出" : "New Barcode Detected";
+
+    const lblUnknownPromptDesc = document.getElementById("lbl-unknown-prompt-desc");
+    if (lblUnknownPromptDesc) {
+      lblUnknownPromptDesc.textContent = isJa
+        ? "カタログに未登録です。ボトルの裏面の「使用量の目安」表を撮影して濃度を自動読込しますか？"
+        : "Not in our catalog yet. Flip bottle to the back dosing table (使用量の目安) to auto-read the concentration!";
+    }
+
+    const lblBtnPromptOcr = document.getElementById("lbl-btn-prompt-ocr");
+    if (lblBtnPromptOcr) lblBtnPromptOcr.textContent = isJa ? "使用量表をカメラ読込" : "Scan Dosing Table";
+
+    const lblBtnPromptManual = document.getElementById("lbl-btn-prompt-manual");
+    if (lblBtnPromptManual) lblBtnPromptManual.textContent = isJa ? "手動で設定 (15秒) ➔" : "Manual Setup (15s) ➔";
+
+    const lblBuilderScanLabel = document.getElementById("lbl-builder-scan-label");
+    if (lblBuilderScanLabel) lblBuilderScanLabel.textContent = isJa ? "表をカメラ読取" : "Auto-Read Table";
+
+    const lblBtnOpenOcr = document.getElementById("lbl-btn-open-ocr");
+    if (lblBtnOpenOcr) lblBtnOpenOcr.textContent = isJa ? "使用量表" : "Dosing Table";
+
     this.updateCapPreview();
     this.renderBackLabelMatrix();
 
@@ -889,6 +913,39 @@ class LaundryApp {
 
     const btnClearDetected = document.getElementById("btn-clear-detected");
     if (btnClearDetected) btnClearDetected.addEventListener("click", () => this.clearDetectedBanner());
+
+    const btnOpenScannerOcr = document.getElementById("btn-open-scanner-ocr");
+    if (btnOpenScannerOcr) btnOpenScannerOcr.addEventListener("click", () => this.openScanner("ocr"));
+
+    const btnBuilderScanLabel = document.getElementById("btn-builder-scan-label");
+    if (btnBuilderScanLabel) btnBuilderScanLabel.addEventListener("click", () => this.openScanner("ocr"));
+
+    const btnPromptOcr = document.getElementById("btn-scanner-switch-to-ocr");
+    if (btnPromptOcr) {
+      btnPromptOcr.addEventListener("click", () => {
+        this.hideUnknownBarcodePrompt();
+        this.setScannerMode("ocr");
+      });
+    }
+
+    const btnPromptManual = document.getElementById("btn-scanner-skip-to-manual");
+    if (btnPromptManual) {
+      btnPromptManual.addEventListener("click", () => {
+        const barcodeToKeep = this.pendingBarcode;
+        this.hideUnknownBarcodePrompt();
+        this.closeScanner();
+        this.detectedBottleData = {
+          barcode: barcodeToKeep,
+          source: "new_barcode"
+        };
+        this.openBottleBuilder();
+        const isJa = this.currentLang === "ja";
+        this.showDetectedBanner(
+          isJa ? `新しいバーコード (${barcodeToKeep}) を検出しました。初回登録すると次回から自動認識されます！`
+               : `New Barcode (${barcodeToKeep}) detected! Save once below and it will be remembered!`
+        );
+      });
+    }
   }
 
   switchTab(tabName) {
@@ -1348,11 +1405,13 @@ class LaundryApp {
       }
     }
 
+    this.hideUnknownBarcodePrompt();
     this.startCameraStream();
   }
 
   closeScanner() {
     this.isScanning = false;
+    this.hideUnknownBarcodePrompt();
     this.stopCameraStream();
 
     const modal = document.getElementById("modal-scanner");
@@ -1361,6 +1420,25 @@ class LaundryApp {
       modal.classList.remove("active");
     }
 
+    const reticle = document.getElementById("scanner-reticle-box");
+    if (reticle) reticle.classList.remove("scan-success");
+  }
+
+  showUnknownBarcodePrompt(janCode) {
+    const prompt = document.getElementById("scanner-unknown-prompt");
+    const codeEl = document.getElementById("lbl-unknown-prompt-code");
+    if (codeEl) codeEl.textContent = janCode;
+    if (prompt) prompt.classList.remove("hidden");
+    const laser = document.getElementById("scanner-laser");
+    if (laser) laser.style.display = "none";
+  }
+
+  hideUnknownBarcodePrompt() {
+    const prompt = document.getElementById("scanner-unknown-prompt");
+    if (prompt) prompt.classList.add("hidden");
+    this.isBarcodeDetectingPaused = false;
+    const laser = document.getElementById("scanner-laser");
+    if (laser) laser.style.display = "";
     const reticle = document.getElementById("scanner-reticle-box");
     if (reticle) reticle.classList.remove("scan-success");
   }
@@ -1457,6 +1535,7 @@ class LaundryApp {
   }
 
   setScannerMode(mode) {
+    this.hideUnknownBarcodePrompt();
     this.scannerMode = mode;
     const isJa = this.currentLang === "ja";
 
@@ -1484,7 +1563,11 @@ class LaundryApp {
       if (statusText) statusText.textContent = isJa ? "バーコードをスキャン中..." : "Scanning for Barcode...";
     } else {
       if (reticleGuide) reticleGuide.textContent = isJa ? "📸 枠を合わせて下のボタンをタップ" : "📸 Align Table & Tap Button Below";
-      if (statusText) statusText.textContent = isJa ? "「表を撮影して解析」をタップ" : "Tap 'Snap & Read Table' below";
+      if (statusText) {
+        statusText.textContent = this.pendingBarcode
+          ? (isJa ? `バーコード (${this.pendingBarcode}) 保持中: 使用量表を撮影` : `Barcode (${this.pendingBarcode}) saved: Snap dosing table`)
+          : (isJa ? "「表を撮影して解析」をタップ" : "Tap 'Snap & Read Table' below");
+      }
     }
   }
 
@@ -1498,7 +1581,7 @@ class LaundryApp {
       if (timestamp - lastCheckTime > 180) {
         lastCheckTime = timestamp;
 
-        if (this.scannerMode === "barcode" && this.barcodeDetector) {
+        if (!this.isBarcodeDetectingPaused && this.scannerMode === "barcode" && this.barcodeDetector) {
           const video = document.getElementById("scanner-video");
           if (video && video.readyState >= 2) {
             try {
@@ -1528,6 +1611,8 @@ class LaundryApp {
   }
 
   handleBarcodeDetected(janCode) {
+    if (this.isBarcodeDetectingPaused) return;
+
     const isJa = this.currentLang === "ja";
     const reticle = document.getElementById("scanner-reticle-box");
     const statusText = document.getElementById("lbl-scanner-status-text");
@@ -1543,9 +1628,8 @@ class LaundryApp {
     const match = registry.find(b => b.jan === janCode) || (this.userBarcodes && this.userBarcodes[janCode]);
 
     setTimeout(() => {
-      this.closeScanner();
-
       if (match) {
+        this.closeScanner();
         this.detectedBottleData = {
           name: isJa ? (match.nameJa || match.name) : match.name,
           category: match.category,
@@ -1558,22 +1642,17 @@ class LaundryApp {
         };
         this.applyDetectedBottleToBuilder(this.detectedBottleData);
       } else {
-        // Unknown barcode: open builder with barcode remembered
-        this.detectedBottleData = {
-          barcode: janCode,
-          source: "new_barcode"
-        };
-        this.openBottleBuilder();
-        this.showDetectedBanner(
-          isJa ? `新しいバーコード (${janCode}) を検出しました。初回登録すると次回から自動認識されます！`
-               : `New Barcode (${janCode}) detected! Save once below and it will be remembered!`
-        );
+        // Unknown barcode: keep scanner open and show prompt
+        this.pendingBarcode = janCode;
+        this.isBarcodeDetectingPaused = true;
+        this.showUnknownBarcodePrompt(janCode);
       }
     }, 400);
   }
 
   applyDetectedBottleToBuilder(data) {
     if (!data) return;
+    this.detectedBottleData = data;
     const isJa = this.currentLang === "ja";
 
     // Open clean builder
@@ -1621,9 +1700,16 @@ class LaundryApp {
     }
 
     // Show banner
-    const bannerText = data.source === "barcode"
-      ? (isJa ? `バーコード認識: ${data.name || data.barcode}` : `Auto-detected from Barcode: ${data.name || data.barcode}`)
-      : (isJa ? `ラベル解析: ${data.category || ''} (${data.baseline || ''}mL/g)` : `Auto-detected from Label: ${data.category || ''} (${data.baseline || ''}mL/g)`);
+    let bannerText = "";
+    if (data.source === "barcode_plus_ocr") {
+      bannerText = isJa
+        ? `バーコード (${data.barcode}) ＋ ラベル解析 (${data.baseline || ''}mL/g) 完了！`
+        : `Auto-detected ${data.baseline || ''}mL/g from Label & attached Barcode (${data.barcode})!`;
+    } else if (data.source === "barcode") {
+      bannerText = isJa ? `バーコード認識: ${data.name || data.barcode}` : `Auto-detected from Barcode: ${data.name || data.barcode}`;
+    } else {
+      bannerText = isJa ? `ラベル解析: ${data.category || ''} (${data.baseline || ''}mL/g)` : `Auto-detected from Label: ${data.category || ''} (${data.baseline || ''}mL/g)`;
+    }
     this.showDetectedBanner(bannerText);
 
     this.updateCapPreview();
@@ -1738,11 +1824,14 @@ class LaundryApp {
             try { navigator.vibrate([100]); } catch (e) {}
           }
           if (statusText) statusText.textContent = isJa ? `✔ 認識成功: ${parsed.baseline}mL/g` : `✔ Detected: ${parsed.baseline}mL/g`;
+          const pendingJan = this.pendingBarcode;
+          this.pendingBarcode = null;
           setTimeout(() => {
             this.closeScanner();
             this.applyDetectedBottleToBuilder({
               ...parsed,
-              source: "ocr"
+              barcode: pendingJan || undefined,
+              source: pendingJan ? "barcode_plus_ocr" : "ocr"
             });
           }, 350);
           return;
