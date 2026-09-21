@@ -58,6 +58,7 @@ class LaundryApp {
     this.barcodeDetector = null;
     this.isScanning = false;
     this.detectedBottleData = null;
+    this.wasBasketModalOpen = false;
 
     this.init();
   }
@@ -552,13 +553,20 @@ class LaundryApp {
     if (lblScannerSub) lblScannerSub.textContent = isJa ? "枠内にバーコードまたは使用量表示を合わせてください" : "Align barcode or dosing table in the frame";
 
     const lblModeBarcode = document.getElementById("lbl-mode-barcode");
-    if (lblModeBarcode) lblModeBarcode.textContent = isJa ? "バーコード（高速）" : "Barcode (Fast)";
+    if (lblModeBarcode) lblModeBarcode.textContent = isJa ? "バーコード（自動読取）" : "Barcode (Auto-Scan)";
 
     const lblModeOcr = document.getElementById("lbl-mode-ocr");
-    if (lblModeOcr) lblModeOcr.textContent = isJa ? "使用量表 OCR" : "Dosing Table OCR";
+    if (lblModeOcr) lblModeOcr.textContent = isJa ? "使用量表（撮影解析）" : "Dosing Table OCR";
+
+    const lblOcrGuide = document.getElementById("lbl-scanner-ocr-guide");
+    if (lblOcrGuide) {
+      lblOcrGuide.textContent = isJa
+        ? "📸 表を枠に合わせて下の「表を撮影して解析」をタップ"
+        : "📸 Fit table in frame ➔ Tap 'Snap & Read Table' below";
+    }
 
     const lblBtnSnapOcr = document.getElementById("lbl-btn-snap-ocr");
-    if (lblBtnSnapOcr) lblBtnSnapOcr.textContent = isJa ? "表を撮影して解析" : "Snap & Read Table";
+    if (lblBtnSnapOcr) lblBtnSnapOcr.textContent = isJa ? "📸 表を撮影して解析" : "📸 Snap & Read Table";
 
     const lblScannerUpload = document.getElementById("lbl-scanner-upload-text");
     if (lblScannerUpload) lblScannerUpload.textContent = isJa ? "画像を選択" : "Upload Photo";
@@ -566,7 +574,7 @@ class LaundryApp {
     const lblReticleText = document.getElementById("lbl-reticle-text");
     if (lblReticleText) {
       lblReticleText.textContent = this.scannerMode === "ocr"
-        ? (isJa ? "「使用量の目安」の枠を撮影" : "Fit '使用量の目安' Table in Box")
+        ? (isJa ? "📸 枠を合わせて下のボタンをタップ" : "📸 Align Table & Tap Button Below")
         : (isJa ? "バーコードを枠に合わせてください" : "Align Barcode Inside Box");
     }
 
@@ -726,6 +734,16 @@ class LaundryApp {
       if (modalCal) {
         modalCal.classList.add("hidden");
         modalCal.classList.remove("active");
+      }
+      this.clearDetectedBanner();
+      if (this.wasBasketModalOpen) {
+        const basketModal = document.getElementById("modal-basket-setup");
+        if (basketModal) {
+          basketModal.classList.remove("hidden");
+          basketModal.classList.add("active");
+          this.renderUserArsenal();
+        }
+        this.wasBasketModalOpen = false;
       }
     };
 
@@ -1446,6 +1464,7 @@ class LaundryApp {
     const btnOcr = document.getElementById("btn-mode-ocr");
     const modalCard = document.querySelector(".scanner-modal-card");
     const btnSnapOcr = document.getElementById("btn-scanner-snap-ocr");
+    const ocrHelper = document.getElementById("scanner-ocr-helper-badge");
     const statusText = document.getElementById("lbl-scanner-status-text");
     const reticleGuide = document.getElementById("lbl-reticle-text");
 
@@ -1456,13 +1475,16 @@ class LaundryApp {
     if (btnSnapOcr) {
       btnSnapOcr.classList.toggle("hidden", mode !== "ocr");
     }
+    if (ocrHelper) {
+      ocrHelper.classList.toggle("hidden", mode !== "ocr");
+    }
 
     if (mode === "barcode") {
       if (reticleGuide) reticleGuide.textContent = isJa ? "バーコードを枠に合わせてください" : "Align Barcode Inside Box";
       if (statusText) statusText.textContent = isJa ? "バーコードをスキャン中..." : "Scanning for Barcode...";
     } else {
-      if (reticleGuide) reticleGuide.textContent = isJa ? "「使用量の目安」の枠を撮影" : "Fit '使用量の目安' Table in Box";
-      if (statusText) statusText.textContent = isJa ? "「表を撮影して解析」をタップ" : "Tap 'Snap & Read Table'";
+      if (reticleGuide) reticleGuide.textContent = isJa ? "📸 枠を合わせて下のボタンをタップ" : "📸 Align Table & Tap Button Below";
+      if (statusText) statusText.textContent = isJa ? "「表を撮影して解析」をタップ" : "Tap 'Snap & Read Table' below";
     }
   }
 
@@ -1636,8 +1658,9 @@ class LaundryApp {
     const width = video.videoWidth || 640;
     const height = video.videoHeight || 480;
 
-    const cropW = Math.round(width * 0.65);
-    const cropH = Math.round(height * 0.55);
+    // Generous crop (85% width, 80% height) to prevent clipping off-center dosing tables
+    const cropW = Math.round(width * 0.85);
+    const cropH = Math.round(height * 0.80);
     const cropX = Math.round((width - cropW) / 2);
     const cropY = Math.round((height - cropH) / 2);
 
@@ -1683,15 +1706,26 @@ class LaundryApp {
 
     try {
       if (typeof window !== "undefined" && !window.Tesseract) {
+        if (statusText) statusText.textContent = isJa ? "OCRライブラリ読込中..." : "Loading OCR library...";
         await this.loadTesseractScript();
       }
 
       if (typeof window !== "undefined" && window.Tesseract) {
-        const res = await window.Tesseract.recognize(canvas, "jpn+eng", {
+        if (statusText) statusText.textContent = isJa ? "AI認識モデル準備中..." : "Initializing OCR model...";
+
+        // Use 'eng' for blazing fast Roman numeral and unit recognition (~2MB download vs 45MB jpn)
+        const res = await window.Tesseract.recognize(canvas, "eng", {
           logger: (m) => {
-            if (m.status === "recognizing text" && statusText) {
-              const pct = Math.round((m.progress || 0) * 100);
-              statusText.textContent = `${isJa ? "解析中" : "Reading"}: ${pct}%`;
+            if (!statusText) return;
+            const pct = Math.round((m.progress || 0) * 100);
+            if (m.status === "recognizing text") {
+              statusText.textContent = `${isJa ? "文字認識中" : "Reading table"}: ${pct}%`;
+            } else if (m.status === "loading language traineddata") {
+              statusText.textContent = `${isJa ? "モデル読込中" : "Loading model"}: ${pct}%`;
+            } else if (m.status === "loading tesseract core") {
+              statusText.textContent = isJa ? "エンジン準備中..." : "Loading OCR engine...";
+            } else {
+              statusText.textContent = `${isJa ? "解析処理中" : "Processing"}: ${pct}%`;
             }
           }
         });
@@ -1700,11 +1734,17 @@ class LaundryApp {
         const parsed = this.parseLabelOcrText(rawText);
 
         if (parsed && parsed.baseline) {
-          this.closeScanner();
-          this.applyDetectedBottleToBuilder({
-            ...parsed,
-            source: "ocr"
-          });
+          if (typeof navigator !== "undefined" && navigator.vibrate) {
+            try { navigator.vibrate([100]); } catch (e) {}
+          }
+          if (statusText) statusText.textContent = isJa ? `✔ 認識成功: ${parsed.baseline}mL/g` : `✔ Detected: ${parsed.baseline}mL/g`;
+          setTimeout(() => {
+            this.closeScanner();
+            this.applyDetectedBottleToBuilder({
+              ...parsed,
+              source: "ocr"
+            });
+          }, 350);
           return;
         }
       }
@@ -1714,8 +1754,8 @@ class LaundryApp {
 
     if (statusText) {
       statusText.textContent = isJa
-        ? "文字を特定できませんでした。手動入力をご利用ください"
-        : "Could not identify label numbers. Please use manual entry.";
+        ? "数値を特定できませんでした。明るい場所で近づけて再撮影するか、画像選択をお試しください"
+        : "Could not read numbers clearly. Move closer with good lighting or upload a photo.";
     }
   }
 
@@ -1724,16 +1764,27 @@ class LaundryApp {
 
     const text = rawText.replace(/[\r\n]+/g, " ");
 
-    // 1. Water 30L baseline (e.g. 水30Lに対して10mL, 30L: 20mL, 30L 25g)
     let baseline = null;
-    const match30L = text.match(/(?:水\s*30\s*L|30\s*L|30\s*リットル|30L)[\s\S]{0,25}?(10|12|13|15|16|20|21|24|25|26|27|30|35|40|50)\s*(?:mL|ml|g|ミリ|グラム)?/i);
+
+    // 1. Water 30L baseline (e.g. 水30Lに対して10mL, 30L: 20mL, 30L 25g)
+    const match30L = text.match(/(?:水\s*30\s*L|30\s*L|30\s*リットル|30L)[\s\S]{0,25}?(\d+(?:\.\d+)?)\s*(?:mL|ml|g|ミリ|グラム)?/i);
     if (match30L) {
-      baseline = parseFloat(match30L[1]);
+      const val = parseFloat(match30L[1]);
+      if (val >= 4 && val <= 150) baseline = val;
+    }
+
+    // 1b. Drum 2.0kg baseline (e.g. ドラム式 2.0kgに対して10mL, 2kg 10mL)
+    if (!baseline) {
+      const match2Kg = text.match(/(?:2(?:\.0)?\s*kg|2kg|洗たく物量\s*2)[\s\S]{0,20}?(\d+(?:\.\d+)?)\s*(?:mL|ml|g)?/i);
+      if (match2Kg) {
+        const val = parseFloat(match2Kg[1]);
+        if (val >= 4 && val <= 150) baseline = val;
+      }
     }
 
     // 2. Weight baseline (e.g. 衣料1kgに対して12mL, 1kg: 9.1mL, 1kg 12g)
     let weightBaseline = null;
-    const matchKg = text.match(/(?:1|１)\s*kg(?:に対して|につき|に|：|:|\s)*[\s\S]{0,12}?(\d+(?:\.\d+)?)\s*(?:mL|ml|g)?/i);
+    const matchKg = text.match(/(?:1|１)(?:\.0)?\s*kg(?:に対して|につき|に|：|:|\s)*[\s\S]{0,15}?(\d+(?:\.\d+)?)\s*(?:mL|ml|g)?/i);
     if (matchKg) {
       weightBaseline = parseFloat(matchKg[1]);
     } else {
@@ -1746,10 +1797,12 @@ class LaundryApp {
     // 3. Push grams
     let isPush = false;
     let pushG = 5;
-    const matchPush = text.match(/(?:1\s*プッシュ|プッシュ|回)[\s\S]{0,15}?(\d+(?:\.\d+)?)\s*g/i);
+    const matchPush = text.match(/(?:1\s*プッシュ|プッシュ|回|push)[\s\S]{0,15}?(\d+(?:\.\d+)?)\s*(?:g|グラム)/i);
     if (matchPush) {
       isPush = true;
       pushG = parseFloat(matchPush[1]) || 5;
+    } else if (text.includes("ワンハンド") || text.includes("プッシュ")) {
+      isPush = true;
     }
 
     // 4. Category keywords
@@ -1779,6 +1832,16 @@ class LaundryApp {
     } else if (text.includes("粉末") || text.includes("スプーン")) {
       category = "powder_detergent";
       if (!baseline) baseline = 20;
+    }
+
+    // 4b. General prominent unit fallback if neither 30L nor 2kg was matched
+    if (!baseline && weightBaseline) {
+      baseline = weightBaseline;
+    } else if (!baseline) {
+      const matchGeneral = text.match(/\b(10|12|13|15|16|20|24|25|30|35|40|50)\s*(?:mL|ml|g)\b/i);
+      if (matchGeneral) {
+        baseline = parseFloat(matchGeneral[1]);
+      }
     }
 
     if (!baseline) baseline = 10;
@@ -1873,6 +1936,14 @@ class LaundryApp {
     const isJa = this.currentLang === "ja";
     const modal = document.getElementById("modal-custom-bottle");
     if (!modal) return;
+
+    // If opened from Arsenal modal, temporarily hide Arsenal modal so user has a clean, focused view
+    const basketModal = document.getElementById("modal-basket-setup");
+    if (basketModal && !basketModal.classList.contains("hidden")) {
+      this.wasBasketModalOpen = true;
+      basketModal.classList.add("hidden");
+      basketModal.classList.remove("active");
+    }
 
     const idInput = document.getElementById("custom-edit-bottle-id");
     const nameInput = document.getElementById("custom-prod-name");
@@ -2856,6 +2927,15 @@ class LaundryApp {
     if (modal) {
       modal.classList.add("hidden");
       modal.classList.remove("active");
+    }
+
+    if (this.wasBasketModalOpen) {
+      const basketModal = document.getElementById("modal-basket-setup");
+      if (basketModal) {
+        basketModal.classList.remove("hidden");
+        basketModal.classList.add("active");
+      }
+      this.wasBasketModalOpen = false;
     }
 
     this.renderUserArsenal();

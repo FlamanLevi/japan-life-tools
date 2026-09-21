@@ -600,12 +600,17 @@
         <div class="scanner-mode-tabs">
           <button type="button" class="btn-scanner-mode active" id="btn-mode-barcode" data-mode="barcode">
             <span>🏷️</span>
-            <span id="lbl-mode-barcode">Barcode (Fast)</span>
+            <span id="lbl-mode-barcode">Barcode (Auto-Scan)</span>
           </button>
           <button type="button" class="btn-scanner-mode" id="btn-mode-ocr" data-mode="ocr">
             <span>📄</span>
             <span id="lbl-mode-ocr">Dosing Table OCR</span>
           </button>
+        </div>
+
+        <!-- OCR Mode Guidance Callout -->
+        <div class="scanner-ocr-helper-badge hidden" id="scanner-ocr-helper-badge">
+          <span id="lbl-scanner-ocr-guide">📸 Fit table in frame ➔ Tap "Snap & Read Table" below</span>
         </div>
 
         <!-- Action Controls in Footer -->
