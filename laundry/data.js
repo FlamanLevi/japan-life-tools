@@ -8,19 +8,21 @@ const LAUNDRY_DATA = {
       nameJa: "2階",
       badge: "Mixed Floor",
       badgeJa: "共用フロア",
-      note: "Two machines: 1 Panasonic and 1 Sharp compact",
-      noteJa: "パナソニック製1台、シャープ製コンパクト1台",
-      machines: ["panasonic_na_lx113b", "sharp_es_s7c"]
+      units: 3,
+      note: "Three identical Panasonic NA-LX113D heat pump drum machines",
+      noteJa: "パナソニック製NA-LX113D（11kg/6kg）3台設置",
+      machines: ["panasonic_na_lx113d"]
     },
     {
       id: 3,
       name: "3rd Floor",
       nameJa: "3階",
       badge: "Women Only Floor",
-      badgeJa: "女性専用フロア",
-      note: "Restricted to female residents. 1 Sharp and 1 Panasonic heat pump",
-      noteJa: "女性専用。シャープ製1台、パナソニック製ヒートポンプ1台",
-      machines: ["sharp_es_h10c", "panasonic_na_vx3800l"]
+      badgeJa: "女性専用フロア 🌸",
+      units: 3,
+      note: "Restricted to female residents. Three identical Panasonic NA-LX113D heat pump drum machines",
+      noteJa: "女性専用。パナソニック製NA-LX113D（11kg/6kg）3台設置",
+      machines: ["panasonic_na_lx113d"]
     },
     {
       id: 4,
@@ -28,13 +30,497 @@ const LAUNDRY_DATA = {
       nameJa: "4階",
       badge: "Mixed Floor",
       badgeJa: "共用フロア",
-      note: "Two identical high-capacity Sharp drum machines",
-      noteJa: "同型のシャープ製大型ドラム式洗濯乾燥機が2台設置されています",
-      machines: ["sharp_es_h10b"]
+      units: 2,
+      note: "Two identical Panasonic NA-LX113D heat pump drum machines",
+      noteJa: "パナソニック製NA-LX113D（11kg/6kg）2台設置",
+      machines: ["panasonic_na_lx113d"]
     }
   ],
 
   machines: {
+    "panasonic_na_lx113d": {
+      id: "panasonic_na_lx113d",
+      brand: "Panasonic",
+      brandJa: "パナソニック",
+      model: "NA-LX113D",
+      fullName: "Panasonic NA-LX113D (Wash 11kg / Dry 6kg)",
+      fullNameJa: "パナソニック NA-LX113D (洗濯 11kg / 乾燥 6kg)",
+      floor: 2,
+      type: "Front-Load Drum Washer / Dryer",
+      typeJa: "ななめドラム洗濯乾燥機",
+      capacityWashKg: 11,
+      capacityDryKg: 6,
+      manualPdf: "Panasonic NA-LX113DL.pdf",
+      features: [
+        "ECONAVI sensor automatic energy/water saving",
+        "Large 11kg drum with New Baffle and Back Filter for optimal tumbling",
+        "Water-Repellent Restoration (はっ水回復) cycle for outdoor and rain wear",
+        "Low-temp heat pump drying (~65°C) with Jet Fluff and Jet Dry",
+        "Soft-touch membrane controls with digital cup display"
+      ],
+      featuresJa: [
+        "エコナビ（ECONAVI）自動省エネ・節水機能",
+        "新バッフル＆新バックフィルター搭載の11kg大容量ドラム",
+        "アウトドアウェア等の撥水性をよみがえらせる「はっ水回復」コース",
+        "衣類を傷めずふんわり乾かすヒートポンプ乾燥（ジェット乾燥・ほぐし）",
+        "操作しやすいソフトタッチボタン＆杯数デジタル表示"
+      ],
+      interactivePanel: {
+        modelLabel: "Panasonic NA-LX113D (Building Standard)",
+        modelLabelJa: "パナソニック NA-LX113D (館内共通)",
+        panelType: "panasonic_lx",
+        brandBadge: "Panasonic",
+        subBadge: "スゴ落ち 泡洗浄 / ヒートポンプ乾燥",
+        sections: [
+          {
+            id: "lx_process_section",
+            type: "process-strip",
+            titleEn: "Process Adjusters (Wash / Rinse / Spin / Dry)",
+            titleJa: "個別行程設定（洗い・すすぎ・脱水・乾燥）",
+            columns: [
+              {
+                id: "lx_col_wash",
+                buttonId: "btn_wash",
+                kanji: "洗い",
+                romaji: "Arai",
+                en: "Wash Time",
+                role: "process",
+                subtext: "自動槽洗浄(3秒押し)",
+                subtextEn: "Auto Tub Clean (Hold 3s)",
+                ladder: [
+                  "25分以上",
+                  "20分",
+                  "15分",
+                  "7分"
+                ],
+                badgeEn: "Wash Setting",
+                badgeJa: "洗い設定",
+                descEn: "Sets wash time between 7, 15, 20, or 25+ minutes. Press to cycle time. Hold for 3 seconds to toggle Automatic Tub Clean (自動槽洗浄).",
+                descJa: "洗い時間を7分、15分、20分、25分以上から選びます。3秒以上長押しすると「自動槽洗浄」の設定／解除ができます。"
+              },
+              {
+                id: "lx_col_rinse",
+                buttonId: "btn_rinse",
+                kanji: "すすぎ",
+                romaji: "Susugi",
+                en: "Rinse Count",
+                role: "process",
+                subtext: "注水",
+                subtextEn: "Water Inflow",
+                ladder: [
+                  "注水",
+                  "3回以上",
+                  "2回",
+                  "1回"
+                ],
+                badgeEn: "Rinse Setting",
+                badgeJa: "すすぎ設定",
+                descEn: "Selects rinse count (1, 2, 3+ times) or continuous overflow freshwater rinse (注水すすぎ) for sensitive skin.",
+                descJa: "すすぎ回数を1回、2回、3回以上、または水を給水しながら流す「注水」から選びます。"
+              },
+              {
+                id: "lx_col_spin",
+                buttonId: "btn_spin",
+                kanji: "脱水",
+                romaji: "Dassui",
+                en: "Spin Time",
+                role: "process",
+                subtext: "ジェットほぐし(3秒押し)",
+                subtextEn: "Jet Fluff (Hold 3s)",
+                ladder: [
+                  "10分以上",
+                  "6分",
+                  "3分",
+                  "1分"
+                ],
+                badgeEn: "Spin Setting",
+                badgeJa: "脱水設定",
+                descEn: "Sets spin duration (1, 3, 6, or 10 min). Hold 3 seconds to enable Jet Fluff (ジェットほぐし) which untangles and fluffs towels with 10 min of warm airflow after spin.",
+                descJa: "脱水時間を1分、3分、6分、10分以上から選びます。3秒長押しで脱水後に温風で衣類をほぐす「ジェットほぐし」を設定できます。"
+              },
+              {
+                id: "lx_col_dry",
+                buttonId: "btn_dry",
+                kanji: "乾燥",
+                romaji: "Kansō",
+                en: "Dry Mode / Time",
+                role: "process",
+                subtext: "自動槽乾燥(3秒押し)",
+                subtextEn: "Auto Tub Dry (Hold 3s)",
+                ladder: [
+                  "しっかり",
+                  "標準",
+                  "省エネ",
+                  "タイマー"
+                ],
+                badgeEn: "Dry Setting",
+                badgeJa: "乾燥設定",
+                descEn: "Selects drying intensity (Standard, Eco, Heavy Duty 'しっかり', or Timed 30/60/120 min). Hold 3s to toggle Automatic Tub Dry (自動槽乾燥) after laundry.",
+                descJa: "乾燥の仕上がり（標準・省エネ・しっかり・タイマー）を選びます。3秒長押しで洗濯後にドラム内を自動乾燥する「自動槽乾燥」を設定できます。"
+              }
+            ]
+          },
+          {
+            id: "lx_display_section",
+            type: "display-block",
+            titleEn: "Display Window & Delay Timer",
+            titleJa: "デジタル表示部・予約",
+            screen: {
+              id: "disp_screen_lx",
+              kanji: "表示部",
+              romaji: "Hyōji-bu",
+              en: "Digital Display",
+              role: "display",
+              badgeEn: "Screen",
+              badgeJa: "表示画面",
+              sampleValue: "0.6 杯 / 2:00",
+              descEn: "Displays required detergent cup volume (0.4, 0.6, 0.8, 1.0 杯) after load sensing, remaining cycle duration, and error codes.",
+              descJa: "洗濯物の自動計量後に必要な洗剤量（杯数）、運転残り時間、エラーコードを表示します。"
+            },
+            timerButton: {
+              id: "btn_timer",
+              kanji: "予約",
+              romaji: "Yoyaku",
+              en: "Delay Timer",
+              role: "feature",
+              badgeEn: "Timer",
+              badgeJa: "予約タイマー",
+              descEn: "Programs completion time in 1-hour increments up to 24 hours.",
+              descJa: "何時間後に洗濯を完了させるかを1時間単位（最大24時間）で予約設定します。"
+            }
+          },
+          {
+            id: "lx_maintenance_section",
+            type: "maintenance-strip",
+            titleEn: "Water Level & Tub Maintenance",
+            titleJa: "水位・お手入れ",
+            items: [
+              {
+                id: "btn_water_level",
+                kanji: "水位",
+                romaji: "Sui-i",
+                en: "Water Level",
+                role: "feature",
+                subtext: "排水フィルター(3秒押し)",
+                subtextEn: "Drain Filter (Hold 3s)",
+                lamps: [
+                  "水位高め",
+                  "乾燥フィルター",
+                  "排水フィルター"
+                ],
+                badgeEn: "Water / Filter",
+                badgeJa: "水位／フィルター",
+                descEn: "Raises water level for extra immersion and rinsing. Hold for 3 seconds to clear or reset the drain filter clean reminder lamp.",
+                descJa: "水位を高めに設定します。3秒以上長押しすると「排水フィルター」のお手入れサインを設定／解除できます。"
+              },
+              {
+                id: "btn_care",
+                kanji: "お手入れ",
+                romaji: "O-teire",
+                en: "Tub Maintenance",
+                role: "feature",
+                subtext: "槽洗浄サイン(3秒押し)",
+                subtextEn: "Tub Clean Sign (Hold 3s)",
+                lamps: [
+                  "ふんわり",
+                  "槽洗浄サイン",
+                  "サッと槽すすぎ",
+                  "槽洗浄",
+                  "槽乾燥"
+                ],
+                badgeEn: "Maintenance",
+                badgeJa: "お手入れ",
+                descEn: "Dedicated tub cleaning button. Toggles between Tub Wash (槽洗浄), Quick Tub Rinse (サッと槽すすぎ), and Tub Dry (槽乾燥). Hold 3s to reset tub wash alert.",
+                descJa: "洗濯槽のお手入れ（槽洗浄・サッと槽すすぎ・槽乾燥）を選びます。3秒長押しで「槽洗浄サイン」を解除できます。"
+              }
+            ]
+          },
+          {
+            id: "lx_course_section",
+            type: "course-matrix",
+            titleEn: "Course Selection (Up / Down)",
+            titleJa: "コース選択（∧／∨）",
+            indicator: "ふんわり",
+            courseGrid: [
+              [
+                {
+                  kanji: "おまかせ",
+                  romaji: "Omakase",
+                  en: "Standard Auto",
+                  descEn: "Everyday laundry. Automatically detects fabric weight and sets optimal water.",
+                  descJa: "普段の衣類をセンサーで自動計量してきれいに洗います。"
+                },
+                {
+                  kanji: "はっ水回復",
+                  romaji: "Hassui Kaifuku",
+                  en: "Water-Repellent Restoration",
+                  descEn: "Re-activates degraded DWR water-repellency on dry outdoor clothing, rain jackets, and down jackets using warm heat-pump air without water.",
+                  descJa: "水を使わずヒートポンプの温風加熱により、アウトドアウェアやダウンジャケットなどの低下したはっ水機能を回復させます。"
+                }
+              ],
+              [
+                {
+                  kanji: "わたし流",
+                  romaji: "Watashi-ryū",
+                  en: "My Custom Cycle",
+                  descEn: "Memorizes your personalized wash/rinse/spin settings.",
+                  descJa: "お好みの洗い・すすぎ・脱水時間を記憶させて運転します。"
+                },
+                {
+                  kanji: "どろんこ",
+                  romaji: "Doronko",
+                  en: "Muddy / Heavily Soiled",
+                  descEn: "High-soak vigorous tumble wash for gym wear, sports uniforms, and mud.",
+                  descJa: "泥汚れやスポーツウェアなどのガンコな汚れをしっかり落とします。"
+                }
+              ],
+              [
+                {
+                  kanji: "パワフル滝",
+                  romaji: "Pawafuru Taki",
+                  en: "Powerful Waterfall",
+                  descEn: "High-flow circulating shower dissolves stubborn stains and collar grime.",
+                  descJa: "大流量シャワーで頑固な皮脂汚れや食べこぼしを強力洗浄します。"
+                },
+                {
+                  kanji: "毛布",
+                  romaji: "Mōfu",
+                  en: "Blanket / Duvet",
+                  descEn: "Large blankets, bedspreads, and towels up to 4.2kg.",
+                  descJa: "毛布や掛け布団などの大物をすっきり洗います。"
+                }
+              ],
+              [
+                {
+                  kanji: "ナイト",
+                  romaji: "Naito",
+                  en: "Night (Silent)",
+                  descEn: "Quiet low-noise tumbling for late-night washing without disturbing neighbors.",
+                  descJa: "低騒音で運転し、夜間や早朝の洗濯・乾燥に適しています。"
+                },
+                {
+                  kanji: "おうちクリーニング",
+                  romaji: "O-uchi Kurīningu",
+                  en: "Delicates / Wool",
+                  descEn: "Gentle wash with minimal agitation for sweaters, knits, and delicate garments.",
+                  descJa: "デリケートなニット、下着、おしゃれ着を優しく洗います。"
+                }
+              ]
+            ],
+            button: {
+              id: "btn_course",
+              kanji: "コース選択 ∧ ∨",
+              romaji: "Kōsu Sentaku",
+              en: "Course Selector (∧ / ∨)",
+              role: "course",
+              badgeEn: "Course Selector",
+              badgeJa: "コース選択",
+              descEn: "Press the Up (∧) or Down (∨) arrow buttons to scroll through the 8 wash & dry courses above.",
+              descJa: "∧・∨矢印ボタンを押して、上記8種類のコースを順番に選択します。"
+            }
+          },
+          {
+            id: "lx_mode_section",
+            type: "mode-strip",
+            titleEn: "Operation Mode Toggle",
+            titleJa: "洗乾切換（運転内容）",
+            doorLock: "🔒 ドアロック",
+            modeLadders: [
+              "洗濯",
+              "洗〜乾",
+              "乾燥"
+            ],
+            button: {
+              id: "btn_mode_switch",
+              kanji: "洗乾切換",
+              romaji: "Sen-Kan Kirikae",
+              en: "Wash / Dry Mode Switch",
+              role: "mode",
+              subtext: "チャイルドロック(5秒押し)",
+              subtextEn: "Child Lock (Hold 5s)",
+              badgeEn: "Mode Switch",
+              badgeJa: "運転切換",
+              descEn: "Toggles operation mode: Wash Only (洗濯), Wash to Dry (洗濯〜乾燥), or Dry Only (乾燥). Hold 5s for Child Lock (CL).",
+              descJa: "運転内容を「洗濯」「洗濯〜乾燥」「乾燥」から切り換えます。5秒以上長押しするとチャイルドロックを設定できます。"
+            }
+          },
+          {
+            id: "lx_power_start_section",
+            type: "power-start-strip",
+            titleEn: "Start & Power (Right End)",
+            titleJa: "電源・スタート（右端）",
+            buttons: [
+              {
+                id: "btn_start",
+                kanji: "スタート / 一時停止",
+                romaji: "Sutāto / Ichiji Teishi",
+                en: "Start / Pause",
+                role: "start",
+                badgeEn: "Start / Pause",
+                badgeJa: "スタート／一時停止",
+                descEn: "Starts the selected cycle or pauses operation to unlock door (when safe).",
+                descJa: "運転を開始します。運転中に押すと一時停止し、安全が確認されるとドアロックが解除されます。"
+              },
+              {
+                id: "btn_power_on",
+                kanji: "電源 入",
+                romaji: "Dengen Iri",
+                en: "Power ON",
+                role: "power",
+                badgeEn: "Power ON",
+                badgeJa: "電源入",
+                descEn: "Powers on the machine. Automatically turns off if cycle is not started within 10 minutes.",
+                descJa: "洗濯機の電源を入れます。10分間操作しないと自動で切れます。"
+              },
+              {
+                id: "btn_power_off",
+                kanji: "電源 切",
+                romaji: "Dengen Kiri",
+                en: "Power OFF",
+                role: "power",
+                badgeEn: "Power OFF",
+                badgeJa: "電源切",
+                descEn: "Turns power off immediately and cancels current operation.",
+                descJa: "運転を中止し、電源を切ります。"
+              }
+            ]
+          }
+        ]
+      },
+      panelLayout: {
+        powerButtons: [
+          "電源 入 (Power On)",
+          "電源 切 (Power Off)"
+        ],
+        startButton: "スタート / 一時停止 (Start / Pause)",
+        modeSwitch: "運転内容 (Operation Mode): 洗濯 (Wash) → 洗濯〜乾燥 (Wash & Dry) → 乾燥 (Dry)",
+        courseSelect: "コース (Course): おまかせ (Standard/Auto), はっ水回復 (Water-Repellent), わたし流 (My Custom), どろんこ (Muddy), パワフル滝 (Waterfall), 毛布 (Blanket), ナイト (Night), おうちクリーニング (Delicates)",
+        processAdjust: [
+          "洗い (Wash min)",
+          "すすぎ (Rinse count)",
+          "脱水 (Spin min)",
+          "乾燥 (Dry time)"
+        ]
+      },
+      dispenserDrawer: {
+        title: "Panasonic NA-LX113D Detergent Drawer",
+        diagramType: "panasonic_lx",
+        slots: [
+          {
+            id: "softener",
+            name: "Fabric Softener (柔軟剤)",
+            nameJa: "柔軟剤",
+            position: "Front-Left slot",
+            color: "#ec4899",
+            maxCapacity: "Max 55 mL (Do not exceed 'これ以下' line)",
+            notes: "Takes your fabric softener or citric acid rinse (クエン酸). Siphon structure rinses into final rinse automatically.",
+            warning: "Never exceed the MAX fill line, or liquid drains immediately prematurely!"
+          },
+          {
+            id: "liquid_detergent",
+            name: "Liquid Detergent & Bleach (液体洗剤・漂白剤)",
+            nameJa: "液体洗剤／漂白剤",
+            position: "Center channel",
+            color: "#3b82f6",
+            notes: "Pour your active liquid detergent here. Liquid oxygen bleach can also be poured here alongside liquid detergent."
+          },
+          {
+            id: "powder_detergent",
+            name: "Powder Detergent / Powder Bleach (粉末洗剤)",
+            nameJa: "粉末 合成洗剤／漂白剤",
+            position: "Right / Rear hopper",
+            color: "#f59e0b",
+            notes: "For powder detergents and powder oxygen bleaches. Keep slot dry before adding powder to avoid clumping."
+          },
+          {
+            id: "drum_direct",
+            name: "Direct Drum (Drum ONLY - NOT in drawer!)",
+            nameJa: "洗濯槽へ直接投入 (ケースに入れない)",
+            position: "Inside drum directly with clothes",
+            color: "#10b981",
+            notes: "CRITICAL: Scent beads and Gel Pods / Sticks MUST be thrown directly into the drum bottom before clothes! Putting them in the drawer will clog pipes and cause leaks!"
+          }
+        ]
+      },
+      displayReadings: [
+        {
+          reading: "0.4",
+          label: "0.4 杯 (Cup)",
+          labelJa: "0.4 杯",
+          loadEstimate: "Small load: ≤0.5 kg (1-2 shirts/undergarments)",
+          loadEstimateJa: "少量衣類: 0.5kg以下（1〜2枚のシャツや下着）",
+          drumKg: "≤ 0.5 kg",
+          drumKgJa: "0.5kg以下",
+          waterEstL: 30,
+          description: "Light load: 1-2 shirts or undergarments.",
+          descriptionJa: "1〜2枚のシャツや下着など軽い洗濯物",
+          dosages: {
+            nanox: { cap: "0.4杯 (30L線)", capJa: "0.4杯 (30L線)", ml: 10, note: "Bottle bottom line (30L)" },
+            bleach: { cap: "10 mL (Half lower line)", capJa: "10 mL (下線の半分)", ml: 10, note: "Light wash dose" },
+            softener: { cap: "Below Line 1 (~12 mL)", capJa: "目盛り1未満 (約12mL)", ml: 12, note: "Light load softening" },
+            citric: { cap: "Below 0.4 (~12 mL)", capJa: "0.4杯弱 (約12mL)", ml: 12, note: "Light load rinse" },
+            beads: { cap: "Below Lower Mark (~15 mL)", capJa: "下線より少なめ (約15mL)", ml: 15, note: "Subtle scent" }
+          }
+        },
+        {
+          reading: "0.6",
+          label: "0.6 杯 (Cup)",
+          labelJa: "0.6 杯",
+          loadEstimate: "Medium-light load: ≤2.5 kg (1-2 days clothes)",
+          loadEstimateJa: "普段の洗濯: 2.5kg以下（1人分の1〜2日分）",
+          drumKg: "≤ 2.5 kg",
+          drumKgJa: "2.5kg以下",
+          waterEstL: 45,
+          description: "Approx 1-2 days of clothing for 1 person.",
+          descriptionJa: "1人分の1〜2日分の衣類",
+          dosages: {
+            nanox: { cap: "0.6杯 (45L線)", capJa: "0.6杯 (45L線)", ml: 15, note: "Bottle 2nd line (45L)" },
+            bleach: { cap: "20 mL (Lower Line)", capJa: "20 mL (キャップ下線)", ml: 20, note: "Standard drum dose" },
+            softener: { cap: "Line 1 (45L / 22 mL)", capJa: "目盛り1 (45L線 / 22mL)", ml: 22, note: "Line 1 graduation" },
+            citric: { cap: "0.4杯 (35L / 25 mL)", capJa: "0.4杯 (35L線 / 25mL)", ml: 25, note: "Line 0.4 graduation" },
+            beads: { cap: "Lower Mark (~25-30 mL)", capJa: "キャップ下線弱 (~25-30mL)", ml: 25, note: "Moderate scent" }
+          }
+        },
+        {
+          reading: "0.8",
+          label: "0.8 杯 (Cup)",
+          labelJa: "0.8 杯",
+          loadEstimate: "Medium-heavy load: ≤4.5 kg (daily basket)",
+          loadEstimateJa: "多めの洗濯: 4.5kg以下（バスケット一杯分）",
+          drumKg: "≤ 4.5 kg",
+          drumKgJa: "4.5kg以下",
+          waterEstL: 55,
+          description: "Full laundry basket or 3-4 days of clothes.",
+          descriptionJa: "3〜4日分の衣類またはバスケット一杯分",
+          dosages: {
+            nanox: { cap: "0.8杯 (55L線)", capJa: "0.8杯 (55L線)", ml: 20, note: "Bottle 3rd line (55L)" },
+            bleach: { cap: "20 mL (Lower Line)", capJa: "20 mL (キャップ下線)", ml: 20, note: "Standard drum dose" },
+            softener: { cap: "Line 2 (55L / 32 mL)", capJa: "目盛り2 (55L線 / 32mL)", ml: 32, note: "Line 2 graduation" },
+            citric: { cap: "0.6杯 (45L / 35 mL)", capJa: "0.6杯 (45L線 / 35mL)", ml: 35, note: "Line 0.6 graduation" },
+            beads: { cap: "Lower Mark (~35-45 mL)", capJa: "キャップ下線 (約35〜45mL)", ml: 35, note: "Medium-heavy dose" }
+          }
+        },
+        {
+          reading: "1.0",
+          label: "1.0 杯 (Cup)",
+          labelJa: "1.0 杯",
+          loadEstimate: "Heavy / Full load: ≤11 kg (drum max)",
+          loadEstimateJa: "大物・満量: 11kg以下（最大容量・毛布・シーツ）",
+          drumKg: "≤ 11 kg",
+          drumKgJa: "11kg以下 (満量)",
+          waterEstL: 65,
+          description: "Full drum load, towels, bedding or sheets.",
+          descriptionJa: "満量ドラム、大判タオル、シーツ・毛布など",
+          dosages: {
+            nanox: { cap: "1杯 (65L線 / 満量)", capJa: "1杯 (65L線 / 満量)", ml: 25, note: "Full cap rim (65L)" },
+            bleach: { cap: "40 mL (Upper Line)", capJa: "40 mL (キャップ上線)", ml: 40, note: "Full load maximum dose" },
+            softener: { cap: "Line 3 (65L / 42 mL)", capJa: "目盛り3 (65L線 / 42mL)", ml: 42, note: "Line 3 graduation (up to 55mL)" },
+            citric: { cap: "0.8杯 (55L / 45 mL)", capJa: "0.8杯 (55L線 / 45mL)", ml: 45, note: "Line 0.8 graduation" },
+            beads: { cap: "Upper Mark (~55-70 mL)", capJa: "キャップ上線 (約55〜70mL)", ml: 55, note: "Full cap scent dose" }
+          }
+        }
+      ]
+    },
     "panasonic_na_lx113b": {
       id: "panasonic_na_lx113b",
       brand: "Panasonic",
@@ -3065,6 +3551,41 @@ const LAUNDRY_DATA = {
   ],
 
   panelDictionary: [
+    {
+      ja: "はっ水回復",
+      romaji: "Hassui Kaifuku",
+      en: "Water-Repellent Restoration",
+      desc: "Heats outdoor jackets & rain gear with warm air without water to restore factory DWR water repellency.",
+      descJa: "水を使わずヒートポンプ温風で加熱し、アウトドアウェア等の低下した撥水性を回復させるコース。"
+    },
+    {
+      ja: "ジェットほぐし",
+      romaji: "Jetto Hogushi",
+      en: "Jet Fluff (Post-Spin Air Puff)",
+      desc: "10-minute warm airflow tumble after spinning to untangle laundry and raise towel pile fibers.",
+      descJa: "脱水後にドラムを低速回転させながら温風を10分間吹き当て、衣類のゴワつきを低減しほぐします。"
+    },
+    {
+      ja: "ジェット乾燥",
+      romaji: "Jetto Kansō",
+      en: "Jet Dry (Wrinkle Reduction)",
+      desc: "High-airflow jet stream during drying that reduces wrinkles in shirts and sheets.",
+      descJa: "大風量のジェット風を吹き当て、乾燥中のシワを低減します。"
+    },
+    {
+      ja: "自動槽洗浄",
+      romaji: "Jidō Sō Senjō",
+      en: "Auto Tub Clean",
+      desc: "Uses spin rinse water velocity to automatically rinse detergent residue from outer tub.",
+      descJa: "すすぎ中の遠心力を利用して、外槽に付着した洗剤カスを自動で洗い流します。"
+    },
+    {
+      ja: "自動槽乾燥",
+      romaji: "Jidō Sō Kansō",
+      en: "Auto Tub Dry",
+      desc: "Automatically dries drum for 30 minutes after wash cycle to prevent moisture and mildew.",
+      descJa: "洗濯終了後に約30分間ドラムを温風乾燥させ、湿気や黒カビの発生を抑えます。"
+    },
     { ja: "入", romaji: "Iri", en: "Power ON", note: "Turns machine on" },
     { ja: "切", romaji: "Kiri", en: "Power OFF", note: "Turns machine off" },
     { ja: "スタート", romaji: "Sutāto", en: "Start", note: "Begins cycle or confirms settings" },

@@ -5829,3 +5829,131 @@ html[lang="ja"] .pre-drum-text {
 
 
 
+
+
+/* Building Standard Banner & Distribution Chips */
+.building-banner-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.building-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+}
+
+.fleet-standard-pill {
+  font-size: 0.72rem;
+  font-weight: 750;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: var(--primary-light);
+  color: var(--primary);
+  letter-spacing: 0.02em;
+}
+
+.fleet-total-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.building-model-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.building-model-title-row h2 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.heat-pump-badge {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+[data-theme="dark"] .heat-pump-badge {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.building-model-sub {
+  font-size: 0.85rem !important;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.building-distribution-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border);
+}
+
+.dist-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-main);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.dist-chip.dist-women {
+  background: rgba(236, 72, 153, 0.08);
+  border-color: rgba(236, 72, 153, 0.3);
+  color: #db2777;
+}
+
+[data-theme="dark"] .dist-chip.dist-women {
+  background: rgba(244, 114, 182, 0.15);
+  color: #f472b6;
+}
+
+.dist-divider {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.dot-blue {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3b82f6;
+  display: inline-block;
+}
+
+.dot-pink {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ec4899;
+  display: inline-block;
+}

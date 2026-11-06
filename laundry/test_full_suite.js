@@ -408,7 +408,7 @@ if (app.currentFloor !== 2) testErrors.push(`Expected floor 2 for panasonic_na_l
 // Test progressive floor selection
 app.selectFloor(4);
 if (app.currentFloor !== 4) testErrors.push(`Expected floor 4 after selectFloor(4), got ${app.currentFloor}`);
-if (app.currentMachineId !== 'sharp_es_h10b') testErrors.push(`Expected machine sharp_es_h10b on floor 4, got ${app.currentMachineId}`);
+if (app.currentMachineId !== 'panasonic_na_lx113d') testErrors.push(`Expected machine panasonic_na_lx113d on floor 4, got ${app.currentMachineId}`);
 
 // Verify HTML rendering of floor row and machine pill list
 const floorRowEl = domElements['floor-selector-row'];
@@ -416,7 +416,7 @@ const machineListEl = domElements['machine-pill-list'];
 if (!floorRowEl || !floorRowEl.innerHTML.includes('data-floor="4"')) {
   testErrors.push('floor-selector-row does not render floor pills');
 }
-if (!machineListEl || !machineListEl.innerHTML.includes('data-id="sharp_es_h10b"')) {
+if (!machineListEl || !machineListEl.innerHTML.includes('data-id="panasonic_na_lx113d"')) {
   testErrors.push('machine-pill-list does not render active floor machines');
 }
 console.log('✔ Machine switching & floor synchronization verified.');

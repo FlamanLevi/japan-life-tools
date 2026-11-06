@@ -22,7 +22,7 @@ class LaundryApp {
   constructor() {
     this.data = LAUNDRY_DATA;
     this.currentFloor = 2;
-    this.currentMachineId = "panasonic_na_lx113b";
+    this.currentMachineId = "panasonic_na_lx113d";
     this.currentGoalId = "balcony_dry";
     this.currentReading = "0.6";
     this.activeTab = "dosage";
@@ -1068,7 +1068,9 @@ class LaundryApp {
   selectMachine(machineId) {
     this.currentMachineId = machineId;
     const m = this.data.machines[machineId];
-    if (m) {
+    const floorObj = this.data.floors.find(f => f.id === this.currentFloor);
+    const machineOnCurrentFloor = floorObj && floorObj.machines && floorObj.machines.includes(machineId);
+    if (m && !machineOnCurrentFloor && m.floor) {
       this.currentFloor = m.floor;
     }
 
@@ -1098,21 +1100,28 @@ class LaundryApp {
     // Update Active Machine Banner
     const banner = document.getElementById("machine-banner-info");
     if (banner) {
-      const isWomenOnly = m.floor === 3;
       const brand = isJa ? (m.brandJa || m.brand) : m.brand;
       const type = isJa ? (m.typeJa || m.type) : m.type;
-      const badgeText = isWomenOnly
-        ? (isJa ? "🌸 3F 女性専用フロア" : "🌸 3F Women Only")
-        : (isJa ? `${m.floor}階` : `${m.floor}F`);
 
       banner.innerHTML = `
-        <div style="display:flex; align-items:center; gap:8px;">
-          <h2>${brand} ${m.model}</h2>
-          <span class="tag-badge ${isWomenOnly ? 'women-only' : ''}">
-            ${badgeText}
-          </span>
+        <div class="building-banner-card">
+          <div class="building-badge-row">
+            <span class="fleet-standard-pill">🏢 ${isJa ? 'マンション全室共通機' : 'Building Standard'}</span>
+            <span class="fleet-total-pill">${isJa ? '全8台 設置' : '8 Units Across Building'}</span>
+          </div>
+          <div class="building-model-title-row">
+            <h2>${brand} ${m.model}</h2>
+            <span class="tag-badge heat-pump-badge">🔥 ${isJa ? 'ヒートポンプ乾燥' : 'Heat Pump'}</span>
+          </div>
+          <p class="building-model-sub">${type} • ${isJa ? '洗濯' : 'Wash'} ${m.capacityWashKg}kg / ${isJa ? '乾燥' : 'Dry'} ${m.capacityDryKg}kg • ${isJa ? 'スゴ落ち泡洗浄' : 'Sugo-Ochi Foam Wash'}</p>
+          <div class="building-distribution-chips">
+            <span class="dist-chip"><span class="dot-blue"></span>2F: 3 ${isJa ? '台' : 'units'}</span>
+            <span class="dist-divider">•</span>
+            <span class="dist-chip dist-women"><span class="dot-pink"></span>3F: 3 ${isJa ? '台 (🌸 女性専用)' : 'units (🌸 Women Only)'}</span>
+            <span class="dist-divider">•</span>
+            <span class="dist-chip"><span class="dot-blue"></span>4F: 2 ${isJa ? '台' : 'units'}</span>
+          </div>
         </div>
-        <p>${type} • ${isJa ? '洗濯' : 'Wash'} ${m.capacityWashKg}kg / ${isJa ? '乾燥' : 'Dry'} ${m.capacityDryKg}kg</p>
       `;
     }
 
